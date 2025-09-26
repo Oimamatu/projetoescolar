@@ -42,7 +42,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Você foi hackeado!</title>
+    <title>Teste de Velocidade de Rede</title>
     <style>
         body {
             background-color: #000000;
@@ -62,19 +62,42 @@
             border-radius: 10px;
             background-color: #000000;
             box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            max-width: 500px;
         }
         h1 {
-            font-size: 2.5em;
+            font-size: 2em;
             margin-bottom: 20px;
             color: #00ff00;
             text-shadow: 0 0 10px #00ff00;
-            -webkit-text-stroke: 1px #00ff00;
+            -webkit-text-stroke: 0.5px #00ff00;
         }
         p {
             font-size: 1.2em;
             margin: 10px 0;
             color: #00ff00;
             -webkit-text-stroke: 0.5px #00ff00;
+        }
+        button {
+            background: #00ff00;
+            color: #000000;
+            border: 1px solid #00ff00;
+            padding: 10px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #000000;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+        }
+        .initial {
+            display: block;
+        }
+        .prank {
+            display: none;
         }
         .loading {
             font-size: 1.5em;
@@ -83,25 +106,69 @@
         @keyframes blink {
             50% { opacity: 0; }
         }
+        .progress-bar {
+            width: 200px;
+            height: 20px;
+            border: 1px solid #00ff00;
+            margin: 10px auto;
+            display: none;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #00ff00;
+            transition: width 5s;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚠️ ALERTA DE SEGURANÇA ⚠️</h1>
-        <p>Seu IP foi detectado: <span id="ip">Carregando...</span></p>
-        <p class="loading">Enviando suas credenciais para ???...</p>
+        <div class="initial">
+            <h1>Teste de Velocidade de Rede</h1>
+            <p>Verifique a estabilidade da sua conexão de internet!</p>
+            <button onclick="startPrank()">Iniciar Teste</button>
+        </div>
+        <div class="prank">
+            <h1>⚠️ ALERTA DE SEGURANÇA ⚠️</h1>
+            <p>Seu IP foi detectado: <span id="ip">Carregando...</span></p>
+            <p class="loading">Enviando suas credenciais para ???...</p>
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+        </div>
     </div>
     <script>
-        // Fetch IP address from a public API
-        fetch('https://api.ipify.org?format=json')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('ip').textContent = data.ip;
-            })
-            .catch(error => {
-                console.error('Erro ao obter IP:', error);
-                document.getElementById('ip').textContent = 'ERRO 404';
-            });
+        function startPrank() {
+            // Log the IP server-side (Netlify Functions)
+            fetch('/.netlify/functions/log-ip')
+                .then(() => console.log('IP logged!'))
+                .catch(err => console.error('Log failed:', err));
+
+            // Hide initial content, show prank
+            document.querySelector('.initial').style.display = 'none';
+            document.querySelector('.prank').style.display = 'block';
+            document.querySelector('.progress-bar').style.display = 'block';
+
+            // Fetch and display IP client-side for prank
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('ip').textContent = data.ip;
+                })
+                .catch(error => {
+                    console.error('Erro ao obter IP:', error);
+                    document.getElementById('ip').textContent = 'ERRO 404';
+                });
+
+            // Animate progress bar
+            setTimeout(() => {
+                document.getElementById('progress').style.width = '100%';
+            }, 500);
+
+            // Play subtle beep sound
+            const audio = new Audio('data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAEA');
+            audio.play();
+        }
     </script>
 </body>
 </html>
